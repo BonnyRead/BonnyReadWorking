@@ -23,7 +23,7 @@
 
 RRS <- function(AssignedPath,StockingData,pagelimit) {
   # Checking the presence of two important input file
-  if ( missing(AssignedPath) | missing (StockingData))
+  if ( missing (AssignedPath) | missing (StockingData))
   { stop ("You are supposed to input both AssignedPath and StockingData") }
 
   # Initially, you need to read in your data file
@@ -96,37 +96,43 @@ RRS <- function(AssignedPath,StockingData,pagelimit) {
     apply(., 2, as.numeric)
 
   # Making classification of colors and categories
-  mainfile[grepl("戒指 | 對戒 | 戒組 | 尾戒 | 關節戒 | 連指戒 | 情侶戒 |
-                 三件戒 | 開口戒", mainfile$itemname), "category"] <- "戒指"
-  mainfile[grepl("耳環 | 耳針 | 耳扣 | 耳夾", mainfile$itemname),
-           "category"] <- "耳環"
-  mainfile[grepl("項鍊 | 鎖骨鍊 | 頸鍊 | 頸圈", mainfile$itemname),
-           "category"] <- "項鍊"
-  mainfile[grepl("手鍊 | 手環 | 手鐲", mainfile$itemname), "category"] <- "手鍊"
-  mainfile[grepl("髮飾 | 髮帶 | 髮圈 | 髮夾 | 髮箍", mainfile$itemname),
-           "category"] <- "髮飾"
-  mainfile[grepl("手錶", mainfile$itemname), "category"] <- "手錶"
-  mainfile[grepl("刺青貼紙", mainfile$itemname), "category"] <- "刺青貼紙"
-  mainfile[grepl("墨鏡", mainfile$itemname), "category"] <- "墨鏡"
-  mainfile[grepl("腳鍊", mainfile$itemname), "category"] <- "腳鍊"
-  mainfile[is.na(mainfile$category), "category"] <- "其它"
+  mainfile[grepl(c("戒指", "對戒", "戒組", "尾戒", "關節戒", "連指戒",
+                   "情侶戒", "三件戒", "開口戒") %>% paste(collapse = "|"),
+                 mainfile$itemname), category := "戒指"]
+  mainfile[grepl(c("耳環", "耳針", "耳扣", "耳夾", "耳骨環") %>%
+                   paste(collapse = "|"), mainfile$itemname),
+           category := "耳環"]
+  mainfile[grepl(c("項鍊", "鎖骨鍊", "頸鍊", "頸圈") %>%
+                   paste(collapse = "|"), mainfile$itemname),
+           category := "項鍊"]
+  mainfile[grepl(c("手鍊", "手環", "手鐲") %>% paste(collapse = "|"),
+                 mainfile$itemname), category := "手鍊"]
+  mainfile[grepl(c("髮飾", "髮帶", "髮圈", "髮夾", "髮箍") %>%
+                   paste(collapse = "|"), mainfile$itemname),
+           category := "髮飾"]
+  mainfile[grepl("手錶", mainfile$itemname), category := "手錶"]
+  mainfile[grepl("刺青貼紙", mainfile$itemname),
+           category := "刺青貼紙"]
+  mainfile[grepl("墨鏡", mainfile$itemname), category := "墨鏡"]
+  mainfile[grepl("腳鍊", mainfile$itemname), category := "腳鍊"]
+  mainfile[grepl("眼鏡", mainfile$itemname), category := "眼鏡"]
+  mainfile[is.na(mainfile$category), category := "其它"]
 
-  mainfile[grepl("Gold", mainfile$spec), "color"] <- "Gold"
-  mainfile[grepl("Black", mainfile$spec), "color"] <- "Black"
-  mainfile[grepl("Pink", mainfile$spec), "color"] <- "Pink"
-  mainfile[grepl("Yellow", mainfile$spec), "color"] <- "Yellow"
-  mainfile[grepl("Blue", mainfile$spec), "color"] <- "Blue"
-  mainfile[grepl("Red", mainfile$spec), "color"] <- "Red"
-  mainfile[grepl("White", mainfile$spec), "color"] <- "White"
-  mainfile[grepl("Brown", mainfile$spec), "color"] <- "Brown"
-  mainfile[grepl("Purple", mainfile$spec), "color"] <- "Purple"
-  mainfile[grepl("Orange", mainfile$spec), "color"] <- "Orange"
-  mainfile[grepl("Rose Gold", mainfile$spec), "color"] <- "Rose Gold"
-  mainfile[grepl("Gray", mainfile$spec), "color"] <- "Gray"
-  mainfile[grepl("Green", mainfile$spec), "color"] <- "Green"
-  mainfile[grepl("Silver", mainfile$spec), "color"] <- "Silver"
-  mainfile[grepl("Gold", mainfile$spec), "color"] <- "Gold"
-  mainfile[is.na(mainfile$color), "color"] <- "No Show or rare color"
+  mainfile[grepl("Gold", mainfile$spec), color := "Gold"]
+  mainfile[grepl("Black", mainfile$spec), color := "Black"]
+  mainfile[grepl("Pink", mainfile$spec), color := "Pink"]
+  mainfile[grepl("Yellow", mainfile$spec), color := "Yellow"]
+  mainfile[grepl("Blue", mainfile$spec), color := "Blue"]
+  mainfile[grepl("Red", mainfile$spec), color := "Red"]
+  mainfile[grepl("White", mainfile$spec), color := "White"]
+  mainfile[grepl("Brown", mainfile$spec), color := "Brown"]
+  mainfile[grepl("Purple", mainfile$spec), color := "Purple"]
+  mainfile[grepl("Orange", mainfile$spec), color := "Orange"]
+  mainfile[grepl("Rose Gold", mainfile$spec), color := "Rose Gold"]
+  mainfile[grepl("Grey", mainfile$spec), color := "Grey"]
+  mainfile[grepl("Green", mainfile$spec), color := "Green"]
+  mainfile[grepl("Silver", mainfile$spec), color := "Silver"]
+  mainfile[is.na(mainfile$color), color := "No Show or rare color"]
   mainfile$category <- as.factor(mainfile$category)
   mainfile$color <- as.factor(mainfile$color)
 
@@ -153,7 +159,7 @@ RRS <- function(AssignedPath,StockingData,pagelimit) {
       recent7 = apply(countmatrix[confirmvector, k : (k + 6)], 1, sum ),
       target = apply(countmatrix[confirmvector, (k + 7) : (k + 13)], 1, sum )
     )
-  } ) %>% rbindlist
+  }) %>% rbindlist
 
   # This one for createdate of products which locate between min and max date
   exclude <- completefile[CreateDate < ( as.Date(tmpmax) - 14)]
